@@ -1,6 +1,16 @@
+package MainClass;
+
+import InputTextClass.InputText;
+import FilesClass.Files;
+import DatesClass.Dates;
+import TaskClass.Task;
+
 public class Main {
+
         public static void main(String[] args) {
+
             Files.readFile();
+
             boolean bool = true;
 
             while(bool) {

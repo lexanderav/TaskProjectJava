@@ -1,0 +1,864 @@
+Index: src/Dates.java
+===================================================================
+--- src/Dates.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
++++ src/Dates.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
+@@ -1,84 +0,0 @@
+-import java.text.DateFormat;
+-import java.text.ParseException;
+-import java.text.SimpleDateFormat;
+-import java.util.Date;
+-import java.util.HashMap;
+-
+-public class Dates {
+-
+-    private static DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+-
+-    public static DateFormat getDateFormat() {
+-        return sdf;
+-    }
+-
+-    public static String getInputDate() {
+-        Date validDate = newInputDate();
+-        return sdf.format(validDate);
+-    }
+-
+-    private static Date newInputDate() {
+-
+-        Date date = null;
+-        String readDate = InputText.inputString();
+-
+-        if (isDateValid(readDate, "dd/MM/yyyy")) {
+-            try {
+-
+-                date = sdf.parse(readDate);
+-
+-            } catch (ParseException e) {
+-                e.printStackTrace();
+-            }
+-            return date;
+-
+-        } else
+-            return newInputDate();
+-    }
+-
+-    public static boolean isDateValid(String dateToValidate, String dateFormat){
+-
+-        if(dateToValidate == null){
+-            return false;
+-        }
+-
+-        SimpleDateFormat validFormat = new SimpleDateFormat(dateFormat);
+-        validFormat.setLenient(false);
+-
+-        try {
+-
+-            Date date = validFormat.parse(dateToValidate);
+-
+-        } catch (ParseException e) {
+-            System.out.println("The date format is not correct. Try it again.");
+-            return false;
+-        }
+-        return true;
+-    }
+-
+-    public static void checkDateToday() {
+-
+-        if (Files.getMap() != null) {
+-
+-            System.out.println("<<<<Tasks for today>>>>\n" +
+-                               "-----------------------");
+-
+-            for (HashMap.Entry<String, String> pair : Files.getMap().entrySet()) {
+-
+-                if (pair.getKey().equals(Dates.getToday())) {
+-                    System.out.println( pair.getKey() + " - " + pair.getValue());
+-                }
+-            }
+-
+-            System.out.println( "-----------------------\n" +
+-                                "<<<<Tasks for today>>>>\n");
+-
+-        }
+-    }
+-
+-    public static String getToday() {
+-        Date today = new Date();
+-        return sdf.format(today);
+-    }
+-
+-}
+Index: src/Files.java
+===================================================================
+--- src/Files.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
++++ src/Files.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
+@@ -1,118 +0,0 @@
+-import java.io.*;
+-import java.text.ParseException;
+-import java.util.*;
+-
+-public class Files {
+-
+-    private static FileReader fileName;
+-    private static BufferedReader fileReader;
+-    private static File file = new File("TaskFile.txt");
+-    private static Map<String, String> map = new HashMap<String, String>();
+-
+-    public static void readFile() {
+-
+-        try {
+-
+-            if (file.exists()) file.createNewFile();
+-
+-            fileName = new FileReader(file);
+-            fileReader = new BufferedReader(fileName);
+-
+-            while (fileReader.ready()) {
+-                String key = "";
+-                if (!(key = fileReader.readLine()).equals("===========")) {
+-                    map.put(key,fileReader.readLine());
+-                }
+-            }
+-            fileName.close();
+-            fileReader.close();
+-
+-        } catch (IOException e) {
+-            System.out.println("A new file will be created.Enter a task.");
+-            new Task().newTask();
+-        }
+-    }
+-
+-    public static void writeFile(Map<String, String> map) {
+-
+-        try {
+-
+-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+-            //Map<String, String> sortHashMap = sortMap();
+-
+-            if (map != null){
+-                for (HashMap.Entry<String, String> pair : map.entrySet()){
+-                    writer.write(pair.getKey());
+-                    writer.newLine();
+-                    writer.write(pair.getValue());
+-                    writer.newLine();
+-                    writer.write("===========");
+-                    writer.newLine();
+-                }
+-                writer.close();
+-            }
+-
+-        } catch (Exception e) {
+-            e.getStackTrace();
+-        }
+-    }
+-
+-
+-
+-    public static void setMap(String key, String value) {
+-        map.put(key,value);
+-    }
+-    public static Map<String, String> getMap() {
+-        return map;
+-    }
+-
+-    /*private static Map<String, String> sortMap() {//сучара не работает
+-
+-        Map<String, String> newMap = new HashMap<String, String>();
+-        List<String> list = new ArrayList<String>(map.keySet());
+-        List<String> newList = new ArrayList<String>();
+-        boolean isSorted = false;
+-
+-        while (!isSorted){
+-
+-            isSorted = true;
+-
+-            for (int k = 0; k < list.size()-1; k++) {
+-                try {
+-
+-                    Date date1 = Dates.getDateFormat().parse(list.get(k));
+-                    Date date2 = Dates.getDateFormat().parse(list.get(k+1));
+-
+-                    if (date1.before(date2)) {
+-                        String buff = list.get(k);
+-                        String buff2 = list.get(k+1);
+-                        newList.add(buff);
+-                        newList.add(buff2);
+-                        System.out.println(" Это в if " + list.get(k));
+-                        isSorted = false;
+-                    } else if (date1.after(date2)){
+-                        String buff = list.get(k);
+-                        newList.add(buff);
+-                        System.out.println("Этов else " + list.get(k));
+-                        isSorted = false;
+-                    }
+-
+-                } catch (ParseException e) {
+-                    e.printStackTrace();
+-                }
+-
+-            }
+-
+-        }
+-        
+-        for (int i = newList.size()-1; i >= 0; i--) {
+-            System.out.println("Значение листа = " + newList.get(i) + "\n");
+-            newMap.put(newList.get(i), map.get(list.get(i)));
+-        }
+-
+-        for (Map.Entry<String, String> pair : newMap.entrySet()){
+-            System.out.println("newMap = " + pair.getKey() + "\n");
+-        }
+-        return newMap;
+-    }*/
+-}
+Index: src/InputText.java
+===================================================================
+--- src/InputText.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
++++ src/InputText.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
+@@ -1,33 +0,0 @@
+-import java.io.BufferedReader;
+-import java.io.IOException;
+-import java.io.InputStreamReader;
+-
+-public class InputText {
+-
+-    private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+-
+-    public static String inputString() {
+-
+-        String text ="";
+-
+-        try {
+-            text = reader.readLine();
+-        } catch (IOException e) {
+-            e.getStackTrace();
+-        }
+-        return text;
+-    }
+-
+-    public static int inputInt() {
+-
+-        int text = 0;
+-
+-        try {
+-            text = Integer.parseInt(reader.readLine());
+-        } catch (IOException e) {
+-            e.getStackTrace();
+-        }
+-        return text;
+-    }
+-
+-}
+Index: src/Main.java
+===================================================================
+--- src/Main.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
++++ src/Main.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
+@@ -1,60 +0,0 @@
+-public class Main {
+-        public static void main(String[] args) {
+-            Files.readFile();
+-            boolean bool = true;
+-
+-            while(bool) {
+-
+-                Dates.checkDateToday();
+-
+-                switch (outputMenu()) {
+-                    case 1 :
+-                        System.out.println("Add task: ");
+-                        new Task().newTask();
+-                        break;
+-                    case 2 :
+-                        System.out.println("View Tasks: ");
+-                        new Task().checkTask();
+-                        break;
+-                    case 3 :
+-                        System.out.println("Delete task: ");
+-                        new Task().deleteTask();
+-                        break;
+-                    case 4 :
+-                        System.out.println("Edit task: ");
+-                        new Task().editTask();
+-                        break;
+-                }
+-                bool = checkContinue();
+-            }
+-        }
+-
+-        public static int outputMenu() {
+-
+-            System.out.println("=====----=====\n" +
+-                               "-----menu-----\n" +
+-                               "=====----===== \n1. Add task \n2. View Tasks \n3. Delete task \n4. Edit task \n");
+-
+-            String num = InputText.inputString();
+-
+-            if ( num.equals("1") || num.equals("2") || num.equals("3") || num.equals("4")) return Integer.parseInt(num);
+-            else
+-                return outputMenu();
+-        }
+-
+-        public static boolean checkContinue() {
+-
+-            System.out.println("Continue work? y/n");
+-
+-            String check = InputText.inputString();
+-
+-            if (check.equals("n")) {
+-                Files.writeFile(Files.getMap());
+-                return false;
+-            } else if (check.equals("y")) {
+-                return true;
+-            } else
+-                return checkContinue();
+-        }
+-
+-}
+Index: src/Task.java
+===================================================================
+--- src/Task.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
++++ src/Task.java	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
+@@ -1,84 +0,0 @@
+-import java.util.HashMap;
+-
+-public class Task {
+-
+-    public void newTask() {
+-
+-        System.out.print("Enter a new date as dd/MM/yyyy: ");
+-        String key = Dates.getInputDate();//ввод даты
+-        System.out.print("Enter a new task: ");
+-        String value = InputText.inputString();//ввод задачи
+-
+-        if (!checkKeyMap(key, value)){
+-            Files.setMap(key,value);
+-            System.out.println("Task successfully added.");
+-        } else {
+-            for (HashMap.Entry<String, String> pair : Files.getMap().entrySet()) {
+-                if (pair.getKey().equals(key)) {
+-                    Files.setMap(key, pair.getValue() + " " + value);
+-                    System.out.println("Task successfully added to existing.");
+-                }
+-            }
+-        }
+-        Files.writeFile(Files.getMap());//
+-    }
+-
+-    public void checkTask() {
+-
+-        Files.readFile();
+-
+-        if (Files.getMap() != null) {
+-            Files.getMap().forEach( (k,v) -> System.out.println(k + " " + v));
+-        }
+-        else
+-            System.out.println("The task list is empty.");
+-    }
+-
+-    public void deleteTask() {
+-        //Files.readFile();
+-        checkTask();
+-
+-        System.out.println("Select the task to delete and enter the dd/MM/yyyy");
+-
+-        String delKey = Dates.getInputDate();
+-
+-        if (checkKeyMap(delKey, "")) {
+-            Files.getMap().remove(delKey);
+-            Files.writeFile(Files.getMap());//
+-            System.out.println("Task deleted.");
+-        } else
+-            System.out.println("Tasks with this key do not exist or the task list is empty.");
+-    }
+-
+-    public boolean checkKeyMap(String key, String value) { //проверка на существование введенного ключа
+-
+-        boolean bool = false;
+-
+-        if (Files.getMap() != null) {
+-            for (HashMap.Entry<String, String> pair : Files.getMap().entrySet()) {
+-                if (pair.getKey().equals(key)) {
+-                    bool = true;
+-                }
+-            }
+-        }
+-        return bool;
+-    }
+-
+-    public void editTask() {
+-
+-        checkTask();
+-
+-        System.out.println("Select a task to edit and enter a dd/MM/yyyy");
+-
+-        String edT = Dates.getInputDate();
+-
+-        if (checkKeyMap(edT,"")) {
+-            System.out.println("Enter a new task!");
+-            String value = InputText.inputString();
+-            Files.setMap(edT, value);
+-            Files.writeFile(Files.getMap());//
+-        } else
+-            System.out.println("Tasks with this key do not exist or the task list is empty.");
+-    }
+-
+-}
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/workspace.xml	(revision f8d840de943d27d9891ebdc36aaf3db483c8d581)
++++ .idea/workspace.xml	(date 1581540833614)
+@@ -1,7 +1,28 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ChangeListManager">
+-    <list default="true" id="7330c3c4-9301-4fbd-8f81-e1912b5e4c84" name="Default Changelist" comment="" />
++    <list default="true" id="7330c3c4-9301-4fbd-8f81-e1912b5e4c84" name="Default Changelist" comment="">
++      <change afterPath="$PROJECT_DIR$/src/InputTextClass/InputText.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/MainClass/Main.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/TaskFile.txt" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/out/production/untitled1/Dates.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/out/production/untitled1/Files.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/out/production/untitled1/InputText.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/out/production/untitled1/META-INF/untitled1.kotlin_module" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/out/production/untitled1/Main.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/out/production/untitled1/Task.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Dates.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Dates.java" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Files.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Files.java" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/InputText.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/InputText.java" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Main.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Task.class" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/Task.java" beforeDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -28,7 +49,14 @@
+       </list>
+     </option>
+   </component>
++  <component name="Git.Settings">
++    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
++    <option name="UPDATE_TYPE" value="MERGE" />
++  </component>
+   <component name="ProjectId" id="1XaT971CLHGXetv8wLaHhZZaGPM" />
++  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
++    <ConfirmationsSetting value="2" id="Add" />
++  </component>
+   <component name="ProjectViewState">
+     <option name="autoscrollFromSource" value="true" />
+     <option name="autoscrollToSource" value="true" />
+@@ -37,15 +65,39 @@
+     <option name="showLibraryContents" value="true" />
+   </component>
+   <component name="PropertiesComponent">
++    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+     <property name="WebServerToolWindowFactoryState" value="false" />
+     <property name="aspect.path.notification.shown" value="true" />
++    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+     <property name="project.structure.last.edited" value="Modules" />
+     <property name="project.structure.proportion" value="0.0" />
+     <property name="project.structure.side.proportion" value="0.0" />
+-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
++    <property name="settings.editor.selected.configurable" value="settings.github" />
+   </component>
+-  <component name="RunManager">
++  <component name="RecentsManager">
++    <key name="MoveFile.RECENT_KEYS">
++      <recent name="C:\Users\lexanderav\IdeaProjects\TaskProject\src" />
++      <recent name="C:\Users\lexanderav\IdeaProjects\TaskProject\com" />
++      <recent name="C:\Users\lexanderav\IdeaProjects\TaskProject\com\TaskClass" />
++      <recent name="C:\Users\lexanderav\IdeaProjects\TaskProject\com\MainClass" />
++      <recent name="C:\Users\lexanderav\IdeaProjects\TaskProject\com\InputTextClass" />
++    </key>
++  </component>
++  <component name="RunManager" selected="Application.Main (1)">
++    <configuration name="Main (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="MainClass.Main" />
++      <module name="untitled1" />
++      <extension name="coverage">
++        <pattern>
++          <option name="PATTERN" value="MainClass.*" />
++          <option name="ENABLED" value="true" />
++        </pattern>
++      </extension>
++      <method v="2">
++        <option name="Make" enabled="true" />
++      </method>
++    </configuration>
+     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+       <option name="MAIN_CLASS_NAME" value="Main" />
+       <module name="untitled1" />
+@@ -55,6 +107,7 @@
+     </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Application.Main (1)" />
+         <item itemvalue="Application.Main" />
+       </list>
+     </recent_temporary>
+@@ -74,18 +127,46 @@
+       <workItem from="1581356657694" duration="18539000" />
+       <workItem from="1581416975231" duration="8674000" />
+       <workItem from="1581456056073" duration="10381000" />
+-      <workItem from="1581503544186" duration="9358000" />
++      <workItem from="1581503544186" duration="14293000" />
++      <workItem from="1581527777678" duration="1661000" />
++      <workItem from="1581531130341" duration="232000" />
++      <workItem from="1581531385897" duration="997000" />
++      <workItem from="1581532435735" duration="922000" />
++      <workItem from="1581533730095" duration="381000" />
++      <workItem from="1581534141577" duration="327000" />
++      <workItem from="1581534738787" duration="1044000" />
++      <workItem from="1581535899339" duration="784000" />
++      <workItem from="1581538048876" duration="1574000" />
+     </task>
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+     <option name="version" value="1" />
+   </component>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State />
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++  <component name="VcsManagerConfiguration">
++    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
++    <option name="LAST_COMMIT_MESSAGE" value="" />
++  </component>
+   <component name="WindowStateProjectService">
+     <state x="552" y="184" key="#Auto_Import" timestamp="1581419149406">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+     <state x="552" y="184" key="#Auto_Import/0.0.1920.1050@0.0.1920.1050" timestamp="1581419149406" />
++    <state x="552" y="184" key="#Notifications" timestamp="1581532838851">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state x="552" y="184" key="#Notifications/0.0.1920.1050@0.0.1920.1050" timestamp="1581532838851" />
+     <state x="552" y="184" key="#Project_Structure" timestamp="1581283066815">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+@@ -94,6 +175,10 @@
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+     <state x="724" y="329" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1050@0.0.1920.1050" timestamp="1581356391242" />
++    <state x="709" y="362" key="#com.intellij.ide.actions.ChooseComponentsToExportDialog" timestamp="1581534952408">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state x="709" y="362" key="#com.intellij.ide.actions.ChooseComponentsToExportDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581534952408" />
+     <state x="765" y="235" key="#com.intellij.ide.util.MemberChooser" timestamp="1581462887949">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+@@ -102,22 +187,42 @@
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+     <state x="690" y="273" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581369237896" />
+-    <state width="1877" height="285" key="GridCell.Tab.0.bottom" timestamp="1581512514422">
++    <state x="585" y="120" key="CommitChangelistDialog2" timestamp="1581538813042">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state x="585" y="120" key="CommitChangelistDialog2/0.0.1920.1050@0.0.1920.1050" timestamp="1581538813042" />
++    <state x="184" y="93" key="DiffContextDialog" timestamp="1581538680904">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+-    <state width="1877" height="285" key="GridCell.Tab.0.bottom/0.0.1920.1050@0.0.1920.1050" timestamp="1581512514422" />
+-    <state width="1877" height="285" key="GridCell.Tab.0.center" timestamp="1581512514422">
++    <state x="184" y="93" key="DiffContextDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581538680904" />
++    <state x="740" y="280" key="FileChooserDialogImpl" timestamp="1581538692173">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+-    <state width="1877" height="285" key="GridCell.Tab.0.center/0.0.1920.1050@0.0.1920.1050" timestamp="1581512514422" />
+-    <state width="1877" height="285" key="GridCell.Tab.0.left" timestamp="1581512514422">
++    <state x="740" y="280" key="FileChooserDialogImpl/0.0.1920.1050@0.0.1920.1050" timestamp="1581538692173" />
++    <state x="794" y="442" width="356" height="166" key="Github.CreateGistDialog" timestamp="1581533749831">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+-    <state width="1877" height="285" key="GridCell.Tab.0.left/0.0.1920.1050@0.0.1920.1050" timestamp="1581512514422" />
+-    <state width="1877" height="285" key="GridCell.Tab.0.right" timestamp="1581512514422">
++    <state x="794" y="442" width="356" height="166" key="Github.CreateGistDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581533749831" />
++    <state x="713" y="436" width="579" height="321" key="Github.ShareDialog" timestamp="1581538596570">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+-    <state width="1877" height="285" key="GridCell.Tab.0.right/0.0.1920.1050@0.0.1920.1050" timestamp="1581512514422" />
++    <state x="713" y="436" width="579" height="321" key="Github.ShareDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581538596570" />
++    <state width="938" height="353" key="GridCell.Tab.0.bottom" timestamp="1581540786233">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state width="938" height="353" key="GridCell.Tab.0.bottom/0.0.1920.1050@0.0.1920.1050" timestamp="1581540786233" />
++    <state width="938" height="353" key="GridCell.Tab.0.center" timestamp="1581540786233">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state width="938" height="353" key="GridCell.Tab.0.center/0.0.1920.1050@0.0.1920.1050" timestamp="1581540786233" />
++    <state width="938" height="353" key="GridCell.Tab.0.left" timestamp="1581540786233">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state width="938" height="353" key="GridCell.Tab.0.left/0.0.1920.1050@0.0.1920.1050" timestamp="1581540786233" />
++    <state width="938" height="353" key="GridCell.Tab.0.right" timestamp="1581540786233">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state width="938" height="353" key="GridCell.Tab.0.right/0.0.1920.1050@0.0.1920.1050" timestamp="1581540786233" />
+     <state width="1877" height="352" key="GridCell.Tab.1.bottom" timestamp="1581356579734">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+@@ -134,17 +239,33 @@
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+     <state width="1877" height="352" key="GridCell.Tab.1.right/0.0.1920.1050@0.0.1920.1050" timestamp="1581356579734" />
+-    <state x="461" y="168" key="SettingsEditor" timestamp="1581513392878">
++    <state x="461" y="168" key="SettingsEditor" timestamp="1581538778939">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+-    <state x="461" y="168" key="SettingsEditor/0.0.1920.1050@0.0.1920.1050" timestamp="1581513392878" />
+-    <state x="656" y="350" key="com.intellij.ide.util.TipDialog" timestamp="1581503543324">
++    <state x="461" y="168" key="SettingsEditor/0.0.1920.1050@0.0.1920.1050" timestamp="1581538778939" />
++    <state x="92" y="92" width="1736" height="866" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1581538605407">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+-    <state x="656" y="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581503543324" />
++    <state x="92" y="92" width="1736" height="866" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581538605407" />
++    <state x="656" y="350" key="com.intellij.ide.util.TipDialog" timestamp="1581540826094">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state x="656" y="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581540826094" />
++    <state x="769" y="443" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1581536050280">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state x="769" y="443" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1050@0.0.1920.1050" timestamp="1581536050280" />
++    <state x="758" y="390" key="git4idea.rebase.GitRebaseDialog" timestamp="1581538575705">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state x="758" y="390" key="git4idea.rebase.GitRebaseDialog/0.0.1920.1050@0.0.1920.1050" timestamp="1581538575705" />
+     <state x="1096" y="247" key="run.anything.popup" timestamp="1581508147301">
+       <screen x="0" y="0" width="1920" height="1050" />
+     </state>
+     <state x="1096" y="247" key="run.anything.popup/0.0.1920.1050@0.0.1920.1050" timestamp="1581508147301" />
++    <state x="790" y="317" key="svn.repositoryBrowser" timestamp="1581535914531">
++      <screen x="0" y="0" width="1920" height="1050" />
++    </state>
++    <state x="790" y="317" key="svn.repositoryBrowser/0.0.1920.1050@0.0.1920.1050" timestamp="1581535914531" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: src/TaskFile.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/TaskFile.txt	(date 1581538578850)
++++ src/TaskFile.txt	(date 1581538578850)
+@@ -0,0 +1,3 @@
++23/09/2020
++tasc3
++===========
+Index: src/InputTextClass/InputText.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/InputTextClass/InputText.java	(date 1581538578864)
++++ src/InputTextClass/InputText.java	(date 1581538578864)
+@@ -0,0 +1,35 @@
++package InputTextClass;
++
++import java.io.BufferedReader;
++import java.io.IOException;
++import java.io.InputStreamReader;
++
++public class InputText {
++
++    private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
++
++    public static String inputString() {
++
++        String text ="";
++
++        try {
++            text = reader.readLine();
++        } catch (IOException e) {
++            e.getStackTrace();
++        }
++        return text;
++    }
++
++    public static int inputInt() {
++
++        int text = 0;
++
++        try {
++            text = Integer.parseInt(reader.readLine());
++        } catch (IOException e) {
++            e.getStackTrace();
++        }
++        return text;
++    }
++
++}
+Index: src/MainClass/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/MainClass/Main.java	(date 1581538578849)
++++ src/MainClass/Main.java	(date 1581538578849)
+@@ -0,0 +1,70 @@
++package MainClass;
++
++import InputTextClass.InputText;
++import FilesClass.Files;
++import DatesClass.Dates;
++import TaskClass.Task;
++
++public class Main {
++
++        public static void main(String[] args) {
++
++            Files.readFile();
++
++            boolean bool = true;
++
++            while(bool) {
++
++                Dates.checkDateToday();
++
++                switch (outputMenu()) {
++                    case 1 :
++                        System.out.println("Add task: ");
++                        new Task().newTask();
++                        break;
++                    case 2 :
++                        System.out.println("View Tasks: ");
++                        new Task().checkTask();
++                        break;
++                    case 3 :
++                        System.out.println("Delete task: ");
++                        new Task().deleteTask();
++                        break;
++                    case 4 :
++                        System.out.println("Edit task: ");
++                        new Task().editTask();
++                        break;
++                }
++                bool = checkContinue();
++            }
++        }
++
++        public static int outputMenu() {
++
++            System.out.println("=====----=====\n" +
++                               "-----menu-----\n" +
++                               "=====----===== \n1. Add task \n2. View Tasks \n3. Delete task \n4. Edit task \n");
++
++            String num = InputText.inputString();
++
++            if ( num.equals("1") || num.equals("2") || num.equals("3") || num.equals("4")) return Integer.parseInt(num);
++            else
++                return outputMenu();
++        }
++
++        public static boolean checkContinue() {
++
++            System.out.println("Continue work? y/n");
++
++            String check = InputText.inputString();
++
++            if (check.equals("n")) {
++                Files.writeFile(Files.getMap());
++                return false;
++            } else if (check.equals("y")) {
++                return true;
++            } else
++                return checkContinue();
++        }
++
++}
+diff --git src/Dates.class src/Dates.class
+deleted file mode 100644
+index 3226ce76f7145268730ef060021bbfe91e1fbcb5..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git src/Files.class src/Files.class
+deleted file mode 100644
+index acd75a14b99b28f84c2e93797e3bd089ba155de3..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git src/InputText.class src/InputText.class
+deleted file mode 100644
+index 479639dd7c40295c411b57b37bca325e6bba6564..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git src/Main.class src/Main.class
+deleted file mode 100644
+index 92add7ba680ba888f383b6468b29f3c7274c4952..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git src/Task.class src/Task.class
+deleted file mode 100644
+index ffc6c12ed11e4215eabb98cb28366539f83489e5..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git out/production/untitled1/META-INF/untitled1.kotlin_module out/production/untitled1/META-INF/untitled1.kotlin_module
+deleted file mode 100644
+index a49347afef10a9b5f95305e1058ba36adec7d6dd..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git out/production/untitled1/Dates.class out/production/untitled1/Dates.class
+deleted file mode 100644
+index 4abcf65bb2149934ca2fdc4b25a0cf433b435187..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git out/production/untitled1/Files.class out/production/untitled1/Files.class
+deleted file mode 100644
+index ea81e60af8c5cb485e6fdb5493bff787109fdbd6..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git out/production/untitled1/InputText.class out/production/untitled1/InputText.class
+deleted file mode 100644
+index 46ff606f4ae4edb2d3e9bb6c13b894c113d47265..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git out/production/untitled1/Main.class out/production/untitled1/Main.class
+deleted file mode 100644
+index 086940b35f2b52c9b1f9c24e26537d77efa437f3..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
+diff --git out/production/untitled1/Task.class out/production/untitled1/Task.class
+deleted file mode 100644
+index 53c29abaa4835cb89800c3b26273ec98b180a02c..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+Hc$@<O00001
+
